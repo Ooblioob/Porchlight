@@ -1,0 +1,6 @@
+---
+# tasks file for pip
+- get_url: url=https://bootstrap.pypa.io/get-pip.py dest=/tmp/get-pip.py
+
+- shell: /usr/local/bin/python2.7 /tmp/get-pip.py
+  sudo: yes

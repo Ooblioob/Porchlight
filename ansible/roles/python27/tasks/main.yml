@@ -1,0 +1,28 @@
+---
+# tasks file for python27
+- shell: which python2.7
+  register: result
+  ignore_errors: true
+
+- get_url: 
+    url=http://www.python.org/ftp/python/2.7.6/Python-2.7.6.tgz
+    dest=/tmp/Python-2.7.6.tgz
+  when: result|failed
+
+- shell: tar -xzf Python-2.7.6.tgz
+  args:
+    chdir: /tmp
+    creates: /tmp/Python-2.7.6
+  when: result|failed
+
+- shell: ./configure
+  args:
+    chdir: /tmp/Python-2.7.6
+  sudo: yes
+  when: result|failed
+
+- shell: make altinstall
+  args:
+    chdir: /tmp/Python-2.7.6
+  sudo: yes
+  when: result|failed

@@ -1,0 +1,5 @@
+---
+# tasks file for virtualenv
+- name: install virtualenv
+  pip: name=virtualenv
+  sudo: yes
