@@ -22,12 +22,14 @@
       shell: virtualenv -p /usr/local/bin/python2.7 .env
       args:
         chdir: "{{project_path}}"
+      sudo: yes
     
     - name: pip install requirements.txt
       pip: 
         chdir={{project_path}} 
         requirements=requirements.txt
         virtualenv={{project_path}}/.env
+      sudo: yes
     
     - name: Run migrations
       django_manage: 

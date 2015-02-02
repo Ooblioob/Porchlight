@@ -1,5 +1,11 @@
 ---
 # tasks file for python27
+- yum: name={{item}}
+  with_items:
+    - openssl-devel
+    - sqlite-devel
+  sudo: yes
+
 - shell: which python2.7
   register: result
   ignore_errors: true

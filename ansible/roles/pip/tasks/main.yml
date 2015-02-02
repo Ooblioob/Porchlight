@@ -1,6 +1,11 @@
 ---
 # tasks file for pip
+- shell: which pip
+  register: result
+  ignore_errors: true
+
 - get_url: url=https://bootstrap.pypa.io/get-pip.py dest=/tmp/get-pip.py
 
 - shell: /usr/local/bin/python2.7 /tmp/get-pip.py
+  when: result|failed
   sudo: yes
