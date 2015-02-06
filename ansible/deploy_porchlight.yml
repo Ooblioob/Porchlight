@@ -5,6 +5,11 @@
 - hosts: all
   gather_facts: False   # don't waste time gathering facts...go with what your gut tells you the server is!
   tasks:
+    - git: 
+        repo=https://github.com/cfpb/porchlight.git
+        dest={{project_path}}
+      sudo: yes
+
     - name: pip install requirements.txt
       pip: 
         chdir={{project_path}} 
