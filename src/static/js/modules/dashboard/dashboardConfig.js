@@ -1,42 +1,62 @@
 (function() {
 
-  'use strict';
+    'use strict';
 
-  angular
-  .module('porchlight.dashboard')
-  .constant('CHART_CONFIG',{
-    chart : {
-      options: {
-        colors: ['#0072CE'],
-        chart :{ 
-          spacingTop : 50
-        }
-      },
-      yAxis: {
-            min: 0,
-             title: {
-                text: 'Unshipped Value'
+    angular
+        .module('porchlight.dashboard')
+        .constant('CHART_CONFIG', {
+            chart: {
+                useHighStocks: true,
+                options: {
+                    colors: ['#0072CE'],
+                    style: {
+                      fontFamily: '"Avenir Next", Arial, Helvetica, sans-serif',
+                      fontSize: "13px"
+                    },
+                    chart: {
+                        spacingTop: 25,
+                        type : 'column'
+                    },
+                    navigator: { 
+                        enabled: true 
+                    },
+                    rangeSelector: {
+                         selected: 4
+                     },
+                },
+                exporting: {
+                    enabled: true
+                },
+                yAxis: {
+                    title: {
+                        text: 'Unshipped Value'
+                    },
+                    opposite: false
+                },
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        formatter: function() {
+                            var date = this.value;
+                            if (!isNaN(date)) {
+                                date = new Date(this.value);
+                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+                            }
+                            return date;
+                        }
+                    }
+                },
+                series: [{
+                    negativeColor: '#f1f2f2',
+                    threshold: 0,
+    
+                    color: '#0072CE',
+                }],
+                title: {
+                    text: ' '
+                },
+                loading: false
             }
-      },
-      xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: { // don't display the dummy year
-                month: '%e. %b',
-                year: '%b'
-            },
-            title: {
-                text: 'Date'
-            }
-      },
-      series: [{
-        data: [10, 15, 12, 8, 7, 3, 3, 3, 3,3,3,200]
-      }],
-      title: {
-        text: ' '
-      },
-
-      loading: false
-    }
-  })
+        })
 
 })();

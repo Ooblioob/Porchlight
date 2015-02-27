@@ -8,94 +8,96 @@
 
   function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
     var repos = [];
+
     var service = {
       getRepos     : getRepos,
       setRepos     : setRepos,
+      searchRepos  : searchRepos,
+      searchDatapoints  : searchDatapoints,
       getChartData : getChartData,
       repos        : repos
     };
 
-    initialize();
-
     return service
-
-    function initialize(){
-
+    
+    function searchRepos(searchTerm){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories_search+searchTerm).success(function () {
+        $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need to configure interceptor to handle ajax loader/errors
+      })
     }
+
+    function searchDatapoints(repoModel){
+      var model =  angular.copy(repoModel);
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.datapoints_search+model.url).success(function (data) {
+        $activityIndicator.stopAnimating();
+         model.datapoints = angular.extend(model.datapoints, data);
+        service.setRepos(model);
+      }).error(function () {
+      })
+    }
+
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
     function getChartData(){
-      var chartData = [];
-       chartData=service.repos.map(function(repo) {
-        return [repo.undeployed_datetime, repo.value]
+      var chartObj = {};
+
+      chartObj.data = service.repos.map(function(repo) {
+        var date = new Date(repo.undeployed_datetime);
+        var utcDate = date.getTime();
+        return [utcDate, repo.value]
       });
+
+      chartObj.data.sort(function(a,b){
+        return a[0] - b[0]
+      });
+
+      return chartObj;
     }
 
-    function getRepos(searchTerm){
-      var api_url = searchTerm?(API_CONFIG.repositories_search + searchTerm): API_CONFIG.repositories;
+    function getRepos(){
       $activityIndicator.startAnimating();
-      return $http.get(api_url).success(function (data) {
-        $activityIndicator.stopAnimating();
-        if(Array.isArray(data) && data.length>0){
+      return $http.get(API_CONFIG.repositories).success(function (data) {
+      $activityIndicator.stopAnimating();
+      if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
-
         }
       }).error(function () {
-         //TODO.SEB.02.05.2015
-         //Need a mechanism for handling errors
-       })
+      })
     }
 
     function setRepos(data){
-      service.repos = parseData(data);
+      service.repos = parseReposData(data);
       EventFactory.$emit('repos:change')
     }
 
-    function parseData(data){
+    function parseReposData(data){
       var parsedData = angular.copy(data);
       var flattenedRepos = [];
       if(Array.isArray(parsedData) == false){
         parsedData = [parsedData];
       }
-      //var cumulative = 0;
-      //var currDomain = '';
-      //var dateFormat = 'm/dd/yy';
-      var domain     = '';
+      var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-      //var dateFilter = $filter('date');
-
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
-
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
-        if(repo.dataPointsValues){
-          repo.dataPointsValues.forEach(function(dataPoint){
-           var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
+        if(repo.datapoints){
+          repo.datapoints.forEach(function(dataPoint){
+           var flattenedRepo = angular.extend(Object.create(repo), dataPoint);
            flattenedRepos.push(flattenedRepo);
           })
-          parsedData = flattenedRepos;
-        }
-
-        //if (repo.domain != currDomain) {
-        //  cumulative = 0;   
-        //}
-
-       //currDomain = repo.domain;
-       //repo.commit_date = dateFilter(repo.commit_date, dateFormat);
-       //repo.deploy_date = dateFilter(repo.deploy_date, dateFormat);
-       //cumulative += (repo.lines_added + repo.lines_deleted);
-
-       //if(repo.deploy_date != null ) {
-       //   cumulative = 0;
-       //} 
-
-        //repo.cumulative_lines = cumulative;
+        }      
       });
 
-      return parsedData
+      return flattenedRepos;
     }
 
   }

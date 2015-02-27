@@ -14,8 +14,8 @@
       'ui.bootstrap',
       'templates-main',
       'highcharts-ng',
-      'porchlight.dashboard',
-      'ngActivityIndicator'
+      'ngActivityIndicator',
+      'porchlight.dashboard'
     ]);
 
   angular
@@ -23,10 +23,18 @@
     .config(appConfig);
 
   function appConfig($locationProvider) {
+  
+    window.Highcharts && Highcharts.setOptions({
+      global: {
+        useUTC: false
+      }
+    });
+
     $locationProvider.html5Mode({
       enabled: true,
       requireBase: false
     });
+
   };
 
 })();
